@@ -31,6 +31,30 @@ if [[ -f "$codex_home/provider-bridge.env" ]]; then
   echo "provider_id=${bridge_provider:-unknown}"
 fi
 
+profile_count=0
+for profile_file in "$codex_home"/*.config.toml; do
+  [[ -f "$profile_file" ]] || continue
+  profile_name="$(basename -- "$profile_file" .config.toml)"
+  profile_provider="$(awk '
+    BEGIN { in_root = 1 }
+    /^[[:space:]]*\[/ { in_root = 0; next }
+    in_root && /^[[:space:]]*model_provider[[:space:]]*=/ {
+      value = $0
+      sub(/^[^=]*=/, "", value)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      sub(/^"/, "", value)
+      sub(/"$/, "", value)
+      print value
+      exit
+    }
+  ' "$profile_file")"
+  if [[ "$profile_name" =~ ^[A-Za-z0-9_-]+$ && "$profile_provider" =~ ^[A-Za-z0-9._:/-]+$ ]]; then
+    echo "profile=${profile_name}:${profile_provider}"
+    profile_count=$((profile_count + 1))
+  fi
+done
+echo "profiles=${profile_count}"
+
 state_db=""
 for candidate in "$codex_home"/state_*.sqlite; do
   [[ -f "$candidate" ]] && state_db="$candidate"

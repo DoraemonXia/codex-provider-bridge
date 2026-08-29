@@ -17,6 +17,25 @@ read_bridge_value() {
   awk -F= -v key="$key" '$1 == key { value=$0; sub(/^[^=]*=/, "", value); gsub(/^"|"$/, "", value); print value; exit }' "$bridge_config"
 }
 
+read_profile_value() {
+  local key="$1" profile_file="$2"
+  [[ -f "$profile_file" ]] || return 0
+  awk -v key="$key" '
+    BEGIN { in_root = 1 }
+    /^[[:space:]]*\[/ { in_root = 0; next }
+    in_root && $0 ~ "^[[:space:]]*" key "[[:space:]]*=" {
+      value = $0
+      sub(/^[^=]*=/, "", value)
+      sub(/[[:space:]]+#.*/, "", value)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      sub(/^"/, "", value)
+      sub(/"$/, "", value)
+      print value
+      exit
+    }
+  ' "$profile_file"
+}
+
 bridge_alias="${CODEX_BRIDGE_ALIAS:-$(read_bridge_value BRIDGE_ALIAS)}"
 provider_name="${CODEX_BRIDGE_PROVIDER:-$(read_bridge_value BRIDGE_PROVIDER)}"
 profile_name="${CODEX_BRIDGE_PROFILE:-$(read_bridge_value BRIDGE_PROFILE)}"
@@ -26,6 +45,27 @@ profile_name="${profile_name:-$bridge_alias}"
 [[ "$bridge_alias" =~ ^[A-Za-z0-9_-]+$ ]] || { echo "Invalid bridge alias." >&2; exit 2; }
 [[ "$provider_name" =~ ^[A-Za-z0-9._:/-]+$ ]] || { echo "Invalid bridge provider ID." >&2; exit 2; }
 [[ "$profile_name" =~ ^[A-Za-z0-9_-]+$ ]] || { echo "Invalid bridge profile name." >&2; exit 2; }
+
+# A single `codex` executable is shared by all configured providers. Profiles
+# are the registry: setup_provider.sh writes <alias>.config.toml, and a
+# matching first argument selects that profile. Keep the env-file fallback for
+# installations made by older versions of this skill.
+profile_route=0
+requested_alias="${1:-}"
+if [[ "$requested_alias" =~ ^[A-Za-z0-9_-]+$ ]]; then
+  requested_profile="$codex_home/$requested_alias.config.toml"
+  requested_provider="$(read_profile_value model_provider "$requested_profile")"
+  if [[ -n "$requested_provider" && "$requested_provider" =~ ^[A-Za-z0-9._:/-]+$ ]]; then
+    bridge_alias="$requested_alias"
+    provider_name="$requested_provider"
+    profile_name="$requested_alias"
+    profile_route=1
+  elif [[ "$requested_alias" == "$bridge_alias" ]]; then
+    # Compatibility with a pre-multi-profile installation whose provider
+    # definition is only described by provider-bridge.env.
+    profile_route=1
+  fi
+fi
 
 restore_dir="$codex_home/provider-bridge-restore"
 start_epoch="$(date +%s)"
@@ -229,7 +269,7 @@ run_alternate_and_restore() {
   return "$status"
 }
 
-if [[ "${1:-}" == "$bridge_alias" ]]; then
+if (( profile_route )); then
   shift
   state_db="$(find_state_db)"
   if [[ -n "$state_db" ]] && command -v sqlite3 >/dev/null 2>&1; then
