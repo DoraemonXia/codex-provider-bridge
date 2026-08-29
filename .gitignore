@@ -1,0 +1,20 @@
+# Local Codex state and credentials
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.jsonl
+*.log
+auth.json
+models_cache.json
+*api-key*
+*.key
+provider-bridge.env
+provider-bridge-restore/
+*-restore/
+*.config.toml
+
+# Local test and editor files
+.venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
