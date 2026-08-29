@@ -27,7 +27,7 @@ The script asks for the API key, stores it in a mode-600 file, creates the selec
 Before reusing a VS Code conversation from the terminal:
 
 1. Close the active Codex chat/window for that conversation.
-2. In VS Code run `Developer: Reload Window` (or `Developer: Restart Extension Host` when available).
+2. In VS Code run `Developer: Restart Extension Host` (`workbench.action.restartExtensionHost`). Use `Developer: Reload Window` only if the extension-host command is unavailable or does not release the process.
 3. Confirm the target lock is no longer held with `fuser -v "$CODEX_HOME/thread-writer-locks/<uuid>.lock"`.
 4. Run `codex alt resume` and select the conversation (replace `alt` with the configured alias).
 5. When finished, exit the terminal Codex normally. The wrapper restores the saved provider state.

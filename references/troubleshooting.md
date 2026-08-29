@@ -8,7 +8,7 @@ Cause: the VS Code app-server or another CLI still owns the exact thread lock.
 fuser -v "$CODEX_HOME/thread-writer-locks/<uuid>.lock"
 ```
 
-If a PID is shown, close that Codex chat and run `Developer: Reload Window` or `Developer: Restart Extension Host`. Do not delete the lock or kill unrelated Codex processes. If no PID is shown, retry the exact command; a stale lock file is not proof of an active writer.
+If a PID is shown, close that Codex chat and run `Developer: Restart Extension Host` (`workbench.action.restartExtensionHost`). Use `Developer: Reload Window` only as a fallback. Do not delete the lock or kill unrelated Codex processes. If no PID is shown, retry the exact command; a stale lock file is not proof of an active writer.
 
 ## The alternate-provider conversation is missing from the picker
 

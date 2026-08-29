@@ -35,3 +35,4 @@ Prefer the official bundled CLI and public app-server behavior. The SQLite provi
 ## Verified incidents
 
 - 2026-08-29: A missing `state_*.sqlite` made a command-substitution helper return status 1 under `set -e`, so even a help invocation exited silently. The wrapper now treats an absent state database as an empty result and continues to the bundled CLI; regression coverage includes setup in an empty temporary Codex home and an alternate-alias `--help` invocation.
+- 2026-08-29: The shutdown instruction was clarified to use VS Code `Developer: Restart Extension Host` first, with `Developer: Reload Window` as fallback. This better targets the extension-host/app-server process and avoids unnecessarily reloading the whole window.

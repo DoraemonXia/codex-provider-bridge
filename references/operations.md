@@ -9,7 +9,7 @@ The wrapper does not rewrite rollout history. It changes only the current thread
 ## Recommended sequence
 
 1. Finish or close the normal Codex chat that owns the target thread.
-2. Run VS Code `Developer: Reload Window`; this restarts the extension host/app-server without deleting conversations.
+2. Run VS Code `Developer: Restart Extension Host` (`workbench.action.restartExtensionHost`); this restarts the extension host/app-server without reloading the whole window or deleting conversations. Use `Developer: Reload Window` only as a fallback.
 3. Check a target lock with `fuser -v "$CODEX_HOME/thread-writer-locks/<uuid>.lock"`.
 4. Run `codex <alias> resume` and choose the thread, or pass the complete UUID.
 5. Use the alternate provider.
@@ -22,4 +22,4 @@ When `codex <alias>` starts a new session, there may be no UUID to snapshot befo
 
 ## Concurrency rule
 
-Never open the same thread in the VS Code Codex app-server and the terminal CLI at the same time. A writer lock is per thread, not a global service switch. The bridge refuses a known live lock and never kills the owning process. If VS Code still owns it, close the chat and reload the window/extension host. Do not use `pkill`, `killall`, or a broad `kill` command.
+Never open the same thread in the VS Code Codex app-server and the terminal CLI at the same time. A writer lock is per thread, not a global service switch. The bridge refuses a known live lock and never kills the owning process. If VS Code still owns it, close the chat and run `Developer: Restart Extension Host`; fall back to `Developer: Reload Window` only when necessary. Do not use `pkill`, `killall`, or a broad `kill` command.

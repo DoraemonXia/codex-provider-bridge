@@ -75,7 +75,7 @@ lock_is_live() {
 ensure_thread_available() {
   local thread_id="$1" lock_file="$codex_home/thread-writer-locks/$1.lock"
   if lock_is_live "$lock_file"; then
-    echo "会话 $thread_id 仍被其他 Codex 进程使用；请关闭聊天并执行 Developer: Reload Window。" >&2
+    echo "会话 $thread_id 仍被其他 Codex 进程使用；请关闭聊天并执行 Developer: Restart Extension Host。" >&2
     return 1
   fi
 }
