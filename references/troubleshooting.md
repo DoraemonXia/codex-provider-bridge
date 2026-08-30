@@ -16,6 +16,14 @@ The built-in picker commonly filters by the active provider. Use `codex <alias> 
 
 If VS Code cannot open a thread after it is restored, verify that the base config contains the same provider definition. The provider definition must exist even when the default provider remains OpenAI.
 
+## `codex --profile <alias>` does not restore a shared thread
+
+The direct `--profile` form is passed to the bundled CLI and intentionally
+bypasses the wrapper's thread snapshot and post-exit restoration. Use
+`codex <alias> resume` or `codex <alias> resume <thread-uuid>` when sharing an
+existing conversation with VS Code. Reserve `codex --profile <alias>` for
+direct CLI use where provider restoration is not required.
+
 ## The model still shows Luna
 
 Check which command is being executed:

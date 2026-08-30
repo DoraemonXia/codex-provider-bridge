@@ -69,7 +69,9 @@ codex alt --help
 
 After configuring more than one provider, run each alias with `--help` (for
 example, `codex xhy --help` and `codex volcengine --help`) to verify that the
-shared wrapper recognizes every profile. A profile file may be used directly
-with `codex --profile <alias>` as well.
+shared wrapper recognizes every profile. For an existing shared conversation,
+use `codex <alias> resume` (or `codex <alias> resume <thread-uuid>`). The
+direct `codex --profile <alias>` form intentionally bypasses the wrapper's
+thread snapshot and restoration flow and is for direct CLI use only.
 
 Then perform a low-cost test with a disposable or already-restored conversation. Verify the visible model is the alternate model, send one harmless message only if the user consents, exit normally, and run the doctor again. A no-message launch may not change the thread's provider row; that is expected and should not be treated as a failed restore.
